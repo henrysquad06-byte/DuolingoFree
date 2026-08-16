@@ -1,64 +1,69 @@
-# Бесплатная подписка Duolingo Super (aka Plus)
+# Free Duolingo Super Subscription (aka Plus)
 
-**DuolingoFree** - веб-сервис, который дает возможность получить бесплатную подписку для онлайн платформы обучения иностранных языков Duolingo.
+**DuolingoFree** is a web service that automates the referral flow to obtain free Duolingo Plus (Super) time.
 
-Все что требуется от пользователя - добавить в форму ссылку приглашение, которую можно получить из приложения.
+All a user needs to do is provide a referral link obtained from the Duolingo app — the service will register a new user using that referral link and you receive one week of subscription for each successful referral.
 
-Сервис просто регистрирует по реферальной ссылке нового пользователя и за это вы получаете 1 неделю подписки бесплатно.
+## Requirements
 
+This project is designed to run in containers and requires the following services:
 
+- Docker
+- docker-compose
+- traefik (you should already have Traefik configured in your environment)
 
-## Требования
+## Installation
 
-Для работы требуются следующие службы
+1. Clone the repository:
 
-- ***Docker***
-- ***Docker-compose***
-- ***traefik*** (должен быть у вас уже настроен)
-
-## Установка
-
-Клонируем репозиторий
-
-```shell
-git clone https://github.com/r4hx/DuolingoFree
+```bash
+git clone https://github.com/henrysquad06-byte/DuolingoFree.git
+cd DuolingoFree
 ```
 
-Переименовываем экземпляр ***docker-compose***
+2. Copy the example docker-compose file:
 
-```shell
+```bash
 mv docker-compose.example.yml docker-compose.yml
 ```
 
-Открываем и редактируем файл ***docker-compose.yml***
-В службе ***migrate*** нужно указать значение переменным
+3. Open and edit `docker-compose.yml`. For the `migrate` service set the following environment variables (or leave defaults):
 
-- ***DJANGO_SUPERUSER_USERNAME*** - имя пользователя администратора
-- ***DJANGO_SUPERUSER_PASSWORD*** - пароль администратора
-- ***DJANGO_SUPERUSER_EMAIL*** - адрес электронной почты
+- `DJANGO_SUPERUSER_USERNAME` — admin username
+- `DJANGO_SUPERUSER_PASSWORD` — admin password
+- `DJANGO_SUPERUSER_EMAIL` — admin email address
 
-Или оставьте значения по умолчанию.
+For the `gunicorn` service, add the appropriate Traefik labels and make sure to set the host where the service should be available.
 
-Для службы ***gunicorn*** укажите метки ***traefik*** и не забудь указать хост на котором будет работать сервис.
+For the `celery` service, provide environment variables for Telegram notifications:
 
-В службе ***celery*** укажите переменные окружения для уведомлений в Telegram
+- `TELEGRAM_BOT_TOKEN` — your bot token
+- `TELEGRAM_CHAT_ID` — the chat id (note: chat ids for groups often start with a `-`)
 
-- ***TELEGRAM_BOT_TOKEN*** - токен вашего бота
-- ***TELEGRAM_CHAT_ID*** - идентификатор чата (не забудь что они начинаются с символа "-")
+## Running
 
-## Запуск
+If everything is configured properly, build and start the services:
 
-Если вы сделали все правильно, теперь достаточно выполнить две команды
-
-```shell
+```bash
 docker-compose build
 docker-compose up -d
 ```
 
-И сервис будет доступен на указаном хосте в сервисе gunicorn
+The web service will be available on the host configured for the `gunicorn` service.
 
-## Полезные ссылки
+## Notes and configuration
 
-- [***Страница с подробным описанием проекта***](https://egorovegor.ru/duolingo-plus/)
-- [***Как работает реферальная программа?***](https://support.duolingo.com/hc/ru/articles/4404225309581-How-does-the-referral-program-work-)
-- [***Как проверить статус подписки?***](https://support.duolingo.com/hc/ru/articles/4404225723021-Как-проверить-статус-подписки-)
+- Do not commit secrets (tokens, passwords) to the repository. Use environment variables or a `.env` file that is listed in `.gitignore`.
+- Adjust ports, Traefik rules, and other deployment details to match your infrastructure.
+
+## Useful links
+
+- [Project overview and description (in Russian)](https://egorovegor.ru/duolingo-plus/)
+- [How does Duolingo's referral program work?](https://support.duolingo.com/hc/ru/articles/4404225309581-How-does-the-referral-program-work-)
+- [How to check subscription status (Duolingo support)](https://support.duolingo.com/hc/ru/articles/4404225723021-Как-проверить-статус-подписки-)
+
+
+If you want, I can also:
+- Translate the rest of the project docs or comments into English,
+- Add example environment files and a sample Traefik configuration,
+- Create a brief quick-start that matches the actual project entrypoint (tell me which file starts Django or Gunicorn, or I can inspect the code and update the README accordingly).
